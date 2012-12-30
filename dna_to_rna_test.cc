@@ -44,8 +44,9 @@ TEST(DnaToRnaTest, Pattern) {
 }
 
 TEST(DnaToRnaTest, Nat) {
-  DnaToRna dna2rna("CICFCP");
+  DnaToRna dna2rna("CICFCP--");
   EXPECT_EQ(21, dna2rna.Nat());
+  EXPECT_EQ("--", dna2rna.GetDna());
 }
 
 TEST(DnaToRnaTest, Asnat) {
@@ -53,8 +54,15 @@ TEST(DnaToRnaTest, Asnat) {
 }
 
 TEST(DnaToRnaTest, Consts) {
-  DnaToRna dna2rna("CFPICII");
-  EXPECT_EQ("ICFP", dna2rna.Consts());
+  {
+    DnaToRna dna2rna("CFPICII");
+    EXPECT_EQ("ICFP", dna2rna.Consts());
+  }
+
+  {
+    DnaToRna dna2rna("");
+    EXPECT_EQ("", dna2rna.Consts());
+  }
 }
 
 TEST(DnaToRnaTest, Quote) {
@@ -65,6 +73,17 @@ TEST(DnaToRnaTest, Protect) {
   EXPECT_EQ("ICFPICFP", DnaToRna::Protect(0, "ICFPICFP"));
   EXPECT_EQ("CFPICCFPIC", DnaToRna::Protect(1, "ICFPICFP"));
   EXPECT_EQ("FPICCFFPICCF", DnaToRna::Protect(2, "ICFPICFP"));
+}
+
+TEST(DnaToRnaTest, Search) {
+  const char pattern[] = "ICFP";
+  const Rope dna("ICFPICFP");
+  EXPECT_EQ(4, DnaToRna::Search(pattern, strlen(pattern), dna, 0));
+  EXPECT_EQ(8, DnaToRna::Search(pattern, strlen(pattern), dna, 1));
+  EXPECT_EQ(8, DnaToRna::Search(pattern, strlen(pattern), dna, 4));
+  EXPECT_EQ(-1, DnaToRna::Search(pattern, strlen(pattern), dna, 5));
+
+  EXPECT_EQ(-1, DnaToRna::Search(pattern, strlen(pattern), Rope("PFPFPF"), 0));
 }
 
 TEST(DnaToRnaTest, Replace) {

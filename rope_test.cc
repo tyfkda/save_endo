@@ -21,6 +21,12 @@ TEST(RopeTest, Drop) {
   EXPECT_EQ(7, r.size());
   EXPECT_FALSE(r.empty());
   EXPECT_EQ("cadabra", r);
+
+  r.Drop(100);
+  EXPECT_EQ(0, r.size());
+  EXPECT_TRUE(r.empty());
+
+  EXPECT_EQ('\0', r.Shift());
 }
 
 TEST(RopeTest, Shift) {
@@ -49,6 +55,12 @@ TEST(RopeTest, Strncmp) {
   Rope r("abracadabra");
   EXPECT_EQ(0, r.Strncmp("abra", 4));
   EXPECT_TRUE(r.Strncmp("aara", 4) > 0);
+}
+
+TEST(RopeTest, Reference) {
+  Rope r("abracadabra");
+  EXPECT_EQ('a', r[0]);
+  EXPECT_EQ('\0', r[11]);
 }
 
 TEST(RopeTest, Assign) {

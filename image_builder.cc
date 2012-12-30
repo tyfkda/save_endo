@@ -2,6 +2,7 @@
 
 #include "rope.h"
 #include <assert.h>
+#include <iostream>
 
 using namespace std;
 
@@ -40,6 +41,8 @@ ImageBuilder::ImageBuilder() : dir_(East) {
 }
 
 void ImageBuilder::Build(const vector<Rope>& rna) {
+  cout << "rna: #" << rna.size() << endl;
+
   for (vector<Rope>::const_iterator it = rna.begin();
        it != rna.end(); ++it) {
     const Rope& r = *it;

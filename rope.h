@@ -18,7 +18,7 @@ public:
   bool empty() const { return size() == 0; }
   size_t size() const { return s.size() - p; }
   size_t find(const char* str, int len, size_t start) const;
-  char operator[](int x) const { return s[x + p]; }
+  const char operator[](int x) const { return s[x + p]; }
   void operator=(const Rope& r2);
   void operator+=(char c);
   void operator+=(const Rope& r2);

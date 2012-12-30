@@ -3,7 +3,7 @@
 using namespace std;
 
 void Rope::Drop(int n) {
-  p += min(static_cast<size_t>(n), s.size());
+  p += min(static_cast<size_t>(n), size());
 }
 
 char Rope::Shift() {

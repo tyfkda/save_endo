@@ -276,10 +276,12 @@ void DnaToRna::Replace(const vector<TItem>& tpl, const Environment& e) {
     case TENCODE:  r += Asnat(e.Get(t.u.encode.n).size()); break;
     }
   }
+  LOG("Replace: add " << r.size());
   dna_ = r + dna_;
 }
 
 int DnaToRna::Nat() {
+#if 0
   switch (dna_.Shift()) {
   case 'P':
     return 0;
@@ -288,8 +290,36 @@ int DnaToRna::Nat() {
   case 'C':
     return 2 * Nat() + 1;
   default:
+    ABORT("Not implemented");
     return 0;  // finish()
   }
+#else
+  int n;
+  for (n = 0; ; ++n) {
+    char c = dna_[n];
+    if (c == 'P')
+      break;
+    if (c != 'I' && c != 'F' && c != 'C') {
+      // finish()
+      ABORT("Not implemented");
+      return 0;  // finish()
+    }
+  }
+
+  assert(n <= 32);
+
+  int x = 0;
+  for (int i = 0; i < n; ++i) {
+    x <<= 1;
+    switch (dna_[n - i - 1]) {
+    case 'C':
+      ++x;
+      break;
+    }
+  }
+  dna_.Drop(n + 1);
+  return x;
+#endif
 }
 
 const string& DnaToRna::Consts() {
@@ -304,6 +334,7 @@ const string& DnaToRna::Consts() {
       case 'C':  s += 'P';  break;
       default:  goto L_exit;
       }
+    default:  goto L_exit;
     }
   }
  L_exit:
