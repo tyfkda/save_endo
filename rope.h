@@ -12,7 +12,7 @@ public:
 
   void Drop(int n);
   char Shift();
-  Rope Sub(size_t start, size_t end) const;
+  Rope Sub(int start, int end) const;
   int Strncmp(const char* str, int len) const;
 
   bool empty() const { return size() == 0; }

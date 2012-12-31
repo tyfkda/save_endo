@@ -14,8 +14,8 @@
     exit(1); \
 }
 
-#define LOG(msg) cerr << msg << endl
-//#define LOG(msg) /* nothing */
+//#define LOG(msg) cerr << msg << endl
+#define LOG(msg) /* nothing */
 
 using namespace std;
 
@@ -33,12 +33,15 @@ DnaToRna::DnaToRna(const Rope& dna) :
   dna_(dna) {}
 
 void DnaToRna::Execute() {
-  //int n = 0;
+  int n = 0;
   for (;;) {
+    printf("\r#%d size:%ld  ", n, dna_.size());
+    fflush(stdout);
+
     if (!Step())
       break;
     
-    //if (++n >= 1000) break;
+    if (++n >= 1000) break;
   }
   LOG("DNA left: " << dna_.size());
 }
@@ -332,9 +335,18 @@ const string& DnaToRna::Consts() {
     case 'I':
       switch (dna_.Shift()) {
       case 'C':  s += 'P';  break;
-      default:  goto L_exit;
+      default:
+        dna_ = dna_.Sub(-2, 0) + dna_;
+        goto L_exit;
       }
-    default:  goto L_exit;
+      break;
+    case '\0':
+      goto L_exit;
+      break;
+    default:
+      cerr << dna_[-1] << endl;
+      ABORT("Unexpected");
+      goto L_exit;
     }
   }
  L_exit:

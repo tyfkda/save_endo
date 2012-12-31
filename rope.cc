@@ -12,10 +12,10 @@ char Rope::Shift() {
   return s[p++];
 }
 
-Rope Rope::Sub(size_t start, size_t end) const {
+Rope Rope::Sub(int start, int end) const {
   if (end <= start)
     return Rope("");
-  size_t len = min(end - start, size());
+  int len = min(end, static_cast<int>(size())) - start;
   return Rope(s.substr(start + p, len));
 }
 

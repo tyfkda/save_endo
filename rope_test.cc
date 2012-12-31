@@ -42,13 +42,21 @@ TEST(RopeTest, Shift) {
 }
 
 TEST(RopeTest, Sub) {
-  Rope r("abracadabra");
-  Rope sub = r.Sub(4, 7);
-  EXPECT_EQ("abracadabra", r);
-  EXPECT_EQ("cad", sub);
+  {
+    Rope r("abracadabra");
+    Rope sub = r.Sub(4, 7);
+    EXPECT_EQ("abracadabra", r);
+    EXPECT_EQ("cad", sub);
 
-  EXPECT_EQ("", r.Sub(4, 4));
-  EXPECT_EQ("", r.Sub(4, 3));
+    EXPECT_EQ("", r.Sub(4, 4));
+    EXPECT_EQ("", r.Sub(4, 3));
+  }
+
+  {
+    Rope r("abracadabra");
+    r.Drop(11);
+    EXPECT_EQ("bra", r.Sub(-3, 0));
+  }
 }
 
 TEST(RopeTest, Strncmp) {
@@ -96,8 +104,16 @@ TEST(RopeTest, StrAppend) {
 }
 
 TEST(RopeTest, StrCat) {
-  Rope r("abra");
-  EXPECT_EQ("abracadabra", r + "cadabra");
+  {
+    Rope r("abra");
+    EXPECT_EQ("abracadabra", r + "cadabra");
+  }
+
+  {
+    Rope r("abra");
+    r.Drop(4);
+    EXPECT_EQ("cadabra", Rope("cadabra") + r);
+  }
 }
 
 TEST(RopeTest, ToString) {

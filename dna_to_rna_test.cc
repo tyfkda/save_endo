@@ -32,6 +32,7 @@ TEST(DnaToRnaTest, Pattern) {
     EXPECT_TRUE(dna2rna.Pattern(&p));
     EXPECT_EQ(1, p.size());
     EXPECT_EQ("I", ToString(p));
+    EXPECT_TRUE(dna2rna.GetDna().empty());
   }
 
   {
@@ -40,6 +41,17 @@ TEST(DnaToRnaTest, Pattern) {
     EXPECT_TRUE(dna2rna.Pattern(&p));
     EXPECT_EQ(4, p.size());
     EXPECT_EQ("(!2)P", ToString(p));
+    EXPECT_TRUE(dna2rna.GetDna().empty());
+  }
+
+  {
+    vector<PItem> p;
+    DnaToRna dna2rna("IIIICFPICFIIC");
+    EXPECT_TRUE(dna2rna.Pattern(&p));
+    EXPECT_EQ(0, p.size());
+    EXPECT_TRUE(dna2rna.GetDna().empty());
+    EXPECT_EQ(1, dna2rna.GetRna().size());
+    EXPECT_EQ("ICFPICF", dna2rna.GetRna()[0]);
   }
 }
 
@@ -55,8 +67,9 @@ TEST(DnaToRnaTest, Asnat) {
 
 TEST(DnaToRnaTest, Consts) {
   {
-    DnaToRna dna2rna("CFPICII");
+    DnaToRna dna2rna("CFPICIF");
     EXPECT_EQ("ICFP", dna2rna.Consts());
+    EXPECT_EQ("IF", dna2rna.GetDna());
   }
 
   {

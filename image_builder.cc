@@ -87,7 +87,7 @@ void ImageBuilder::Build(const vector<Rope>& rna) {
     } else if (r == "PFFICCF") {
       Clip();
     } else {
-      //ABORT("NOT IMPLEMENTED: " << string(r, 7));
+      cout << "Unknown: " << r << endl;
     }
   }
 }
