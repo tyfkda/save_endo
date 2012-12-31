@@ -90,4 +90,9 @@ rope_test:	rope_test.o rope.o gtest_main.a
 
 rope_test.o:	rope_test.cc rope.h $(GTEST_HEADERS)
 
+util_test:	util_test.o util.o rope.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+util_test.o:	util_test.cc util.h rope.h $(GTEST_HEADERS)
+
 #

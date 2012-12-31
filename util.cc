@@ -3,6 +3,7 @@
 #include "rope.h"
 #include "image_builder.h"
 #include <assert.h>
+#include <iostream>
 
 using namespace std;
 
@@ -26,7 +27,10 @@ void Environment::Add(const Rope& dna) {
 }
 
 const Rope& Environment::Get(size_t i) const {
-  assert(i < dna_.size());
+  if (i >= dna_.size()) {
+    static const Rope empty("");
+    return empty;
+  }
   return dna_[i];
 }
 
