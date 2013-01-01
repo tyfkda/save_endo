@@ -35,13 +35,13 @@ DnaToRna::DnaToRna(const Rope& dna) :
 void DnaToRna::Execute() {
   int n = 0;
   for (;;) {
-    printf("\r#%d size:%ld  ", n, dna_.size());
+    printf("\r#%d dna:%ld rna:%ld ", n, dna_.size(), rna_.size());
     fflush(stdout);
 
     if (!Step())
       break;
     
-    if (++n >= 1000) break;
+    if (++n >= 10000 * 10000) break;
   }
   LOG("DNA left: " << dna_.size());
 }
@@ -328,15 +328,14 @@ int DnaToRna::Nat() {
 const string& DnaToRna::Consts() {
   string s;
   for (;;) {
-    switch (dna_.Shift()) {
-    case 'C':  s += 'I';  break;
-    case 'F':  s += 'C';  break;
-    case 'P':  s += 'F';  break;
+    switch (dna_[0]) {
+    case 'C':  s += 'I'; dna_.Drop(1);  break;
+    case 'F':  s += 'C'; dna_.Drop(1);  break;
+    case 'P':  s += 'F'; dna_.Drop(1);  break;
     case 'I':
-      switch (dna_.Shift()) {
-      case 'C':  s += 'P';  break;
+      switch (dna_[1]) {
+      case 'C':  s += 'P'; dna_.Drop(2);  break;
       default:
-        dna_ = dna_.Sub(-2, 0) + dna_;
         goto L_exit;
       }
       break;
@@ -344,7 +343,7 @@ const string& DnaToRna::Consts() {
       goto L_exit;
       break;
     default:
-      cerr << dna_[-1] << endl;
+      cerr << dna_[0] << endl;
       ABORT("Unexpected");
       goto L_exit;
     }
