@@ -196,7 +196,7 @@ void ImageBuilder::Fill(const Pos& pos, const Pixel& initial, const Pixel& newCo
 void ImageBuilder::Compose() {
   if (bitmaps_.size() >= 2) {
     Bitmap* b0 = &bitmaps_[bitmaps_.size() - 1];
-    Bitmap* b1 = &bitmaps_[bitmaps_.size() - 1];
+    Bitmap* b1 = &bitmaps_[bitmaps_.size() - 2];
     for (int i = 0; i < Bitmap::W * Bitmap::H; ++i) {
       Pixel* p0 = &b0->bitmap[i];
       Pixel* p1 = &b1->bitmap[i];
@@ -212,7 +212,7 @@ void ImageBuilder::Compose() {
 void ImageBuilder::Clip() {
   if (bitmaps_.size() >= 2) {
     Bitmap* b0 = &bitmaps_[bitmaps_.size() - 1];
-    Bitmap* b1 = &bitmaps_[bitmaps_.size() - 1];
+    Bitmap* b1 = &bitmaps_[bitmaps_.size() - 2];
     for (int i = 0; i < Bitmap::W * Bitmap::H; ++i) {
       Pixel* p0 = &b0->bitmap[i];
       Pixel* p1 = &b1->bitmap[i];
@@ -226,6 +226,7 @@ void ImageBuilder::Clip() {
 }
 
 Pixel ImageBuilder::GetPixel(int x, int y) {
+  assert(!bitmaps_.empty());
   if (0 <= x && x < Bitmap::W && 0 <= y && y < Bitmap::H) {
     Bitmap* bitmap = &bitmaps_[bitmaps_.size() - 1];
     return bitmap->bitmap[y * Bitmap::W + x];

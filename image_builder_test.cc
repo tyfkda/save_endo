@@ -64,3 +64,18 @@ TEST(ImageBuilderTest, AddColor) {
     EXPECT_EQ(191, pxl.a);
   }
 }
+
+TEST(ImageBuilderTest, Move) {
+  Pos pos(100, 0);
+  ImageBuilder::Move(&pos, North);
+  EXPECT_EQ(100, pos.x);
+  EXPECT_EQ(599, pos.y);
+}
+
+TEST(ImageBuilderTest, TurnCounterClockwise) {
+  EXPECT_EQ(East, ImageBuilder::TurnCounterClockwise(South));
+}
+
+TEST(ImageBuilderTest, TurnClockwise) {
+  EXPECT_EQ(West, ImageBuilder::TurnClockwise(South));
+}
