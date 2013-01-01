@@ -88,7 +88,7 @@ size_t Rope::find(const char* str, int len, size_t start) const {
     if (strncmp(&s[i + p], str, len) == 0)
       return i;
   }
-  return -1;
+  return string::npos;
 }
 
 ostream& operator<<(ostream& o, const Rope& rope) { rope.Output(o); return o; }

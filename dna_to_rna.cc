@@ -239,7 +239,7 @@ void DnaToRna::MatchReplace(vector<PItem>& pat, vector<TItem>& t) {
       LOG("Search: " << string(p.u.search.start, p.u.search.len));
       {
         size_t n = Search(p.u.search.start, p.u.search.len, dna_, i);
-        if (n >= i) {
+        if (n != string::npos) {
           i = n;
         } else {
           LOG("Cannot find:" << string(p.u.search.start, p.u.search.len));
@@ -391,5 +391,5 @@ size_t DnaToRna::Search(const char* pattern, int patternLen,
   string::size_type index = dna.find(pattern, patternLen, i);
   if (index != string::npos)
     return index + patternLen;
-  return -1;
+  return string::npos;
 }

@@ -120,3 +120,12 @@ TEST(RopeTest, ToString) {
   Rope r("abracadabra");
   EXPECT_EQ("abracadabra", r.ToString());
 }
+
+TEST(RopeTest, find) {
+  Rope r("abracadabra");
+  EXPECT_EQ(0, r.find("abra", 4, 0));
+  EXPECT_EQ(7, r.find("abra", 4, 1));
+  r.Drop(1);
+  EXPECT_EQ(6, r.find("abra", 4, 0));
+  EXPECT_EQ(string::npos, r.find("xxxx", 4, 0));
+}
