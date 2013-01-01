@@ -23,6 +23,8 @@ struct Bitmap {
     return bitmap[y * W + x];
   }
   void SetPixel(int x, int y, const Pixel& c);
+
+  static Bitmap transparentBitmap;
 };
 
 class ImageBuilder {
@@ -33,7 +35,6 @@ public:
 
   void Build(const std::vector<Rope>& rna);
 
-private:
   void AddBitmap(const Bitmap& bitmap);
   void AddColor(const Color& c);
   Pixel CurrentPixel() const;

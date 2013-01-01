@@ -95,4 +95,9 @@ util_test:	util_test.o util.o rope.o gtest_main.a
 
 util_test.o:	util_test.cc util.h rope.h $(GTEST_HEADERS)
 
+image_builder_test:	image_builder_test.o image_builder.o util.o rope.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+image_builder_test.o:	image_builder_test.cc image_builder.h util.h $(GTEST_HEADERS)
+
 #

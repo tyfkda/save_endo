@@ -6,24 +6,12 @@
 
 using namespace std;
 
-Color black   = { {   0,   0,   0 }, 255 };
-Color red     = { { 255,   0,   0 }, 255 };
-Color green   = { {   0, 255,   0 }, 255 };
-Color yellow  = { { 255, 255,   0 }, 255 };
-Color blue    = { {   0,   0, 255 }, 255 };
-Color magenta = { { 255,   0, 255 }, 255 };
-Color cyan    = { {   0, 255, 255 }, 255 };
-Color white   = { { 255, 255, 255 }, 255 };
-Color transparent = { { 0, 0, 0 }, 0 };
-Color opaque      = { { 0, 0, 0 }, 255 };
-
-Bitmap transparentBitmap;
+Bitmap Bitmap::transparentBitmap;
 
 
 Bitmap::Bitmap() {
-  Pixel transparent = { { 0, 0, 0 }, 0 };
   for (int i = 0; i < W * H; ++i) {
-    bitmap[i] = transparent;
+    bitmap[i] = Color::transparent;
   }
 }
 
@@ -37,7 +25,7 @@ void Bitmap::SetPixel(int x, int y, const Pixel& c) {
 ImageBuilder::ImageBuilder() : dir_(East) {
   position_.x = position_.y = 0;
   mark_.x = mark_.y = 0;
-  bitmaps_.push_back(transparentBitmap);
+  bitmaps_.push_back(Bitmap::transparentBitmap);
 }
 
 void ImageBuilder::Build(const vector<Rope>& rna) {
@@ -47,25 +35,25 @@ void ImageBuilder::Build(const vector<Rope>& rna) {
        it != rna.end(); ++it) {
     const Rope& r = *it;
     if (r == "PIPIIIC") {
-      AddColor(black);
+      AddColor(Color::black);
     } else if (r == "PIPIIIP") {
-      AddColor(red);
+      AddColor(Color::red);
     } else if (r == "PIPIICC") {
-      AddColor(green);
+      AddColor(Color::green);
     } else if (r == "PIPIICF") {
-      AddColor(yellow);
+      AddColor(Color::yellow);
     } else if (r == "PIPIICP") {
-      AddColor(blue);
+      AddColor(Color::blue);
     } else if (r == "PIPIIFC") {
-      AddColor(magenta);
+      AddColor(Color::magenta);
     } else if (r == "PIPIIFF") {
-      AddColor(cyan);
+      AddColor(Color::cyan);
     } else if (r == "PIPIIPC") {
-      AddColor(white);
+      AddColor(Color::white);
     } else if (r == "PIPIIPF") {
-      AddColor(transparent);
+      AddColor(Color::transparent);
     } else if (r == "PIPIIPP") {
-      AddColor(opaque);
+      AddColor(Color::opaque);
     } else if (r == "PIIPICP") {
       bucket_.clear();
     } else if (r == "PIIIIIP") {
@@ -81,7 +69,7 @@ void ImageBuilder::Build(const vector<Rope>& rna) {
     } else if (r == "PIIPIIP") {
       TryFill();
     } else if (r == "PCCPFFP") {
-      AddBitmap(transparentBitmap);
+      AddBitmap(Bitmap::transparentBitmap);
     } else if (r == "PFFPCCP") {
       Compose();
     } else if (r == "PFFICCF") {
@@ -104,19 +92,30 @@ void ImageBuilder::AddColor(const Color& c) {
 
 Pixel ImageBuilder::CurrentPixel() const {
   if (bucket_.empty()) {
-    return opaque;
+    return Color::opaque;
   }
-  
+
+  int nrgb = 0, na = 0;
   int r = 0, g = 0, b = 0, a = 0;
   for (vector<Pixel>::const_iterator it = bucket_.begin();
        it != bucket_.end(); ++it) {
-    r += it->rgb.r;
-    g += it->rgb.g;
-    b += it->rgb.b;
-    a += it->a;
+    if (it->a == 1) {
+      r += it->rgb.r;
+      g += it->rgb.g;
+      b += it->rgb.b;
+      ++nrgb;
+    } else {
+      a += it->a;
+      ++na;
+    }
   }
-  int n = bucket_.size();
-  a /= n;
+
+  a = na > 0 ? a / na : 255;
+  if (nrgb > 0) {
+    r /= nrgb;
+    g /= nrgb;
+    b /= nrgb;
+  }
   Pixel p = { { r * a / 255, g * a / 255, b * a / 255 }, a };
   return p;
 }
@@ -232,7 +231,7 @@ Pixel ImageBuilder::GetPixel(int x, int y) {
     return bitmap->bitmap[y * Bitmap::W + x];
   }
   assert(!"Out of range");
-  return transparent;
+  return Color::transparent;
 }
 
 void ImageBuilder::SetPixel(int x, int y, const Pixel& c) {

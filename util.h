@@ -146,6 +146,17 @@ struct Color {
   bool operator!=(const Color& c) const {
     return rgb != c.rgb || a != c.a;
   }
+
+  static Color black;
+  static Color red;
+  static Color green;
+  static Color yellow;
+  static Color blue;
+  static Color magenta;
+  static Color cyan;
+  static Color white;
+  static Color transparent;
+  static Color opaque;
 };
 
 typedef Color Pixel;
