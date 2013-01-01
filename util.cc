@@ -7,6 +7,17 @@
 
 using namespace std;
 
+Color Color::black   = { {   0,   0,   0 }, 1 };
+Color Color::red     = { { 255,   0,   0 }, 1 };
+Color Color::green   = { {   0, 255,   0 }, 1 };
+Color Color::yellow  = { { 255, 255,   0 }, 1 };
+Color Color::blue    = { {   0,   0, 255 }, 1 };
+Color Color::magenta = { { 255,   0, 255 }, 1 };
+Color Color::cyan    = { {   0, 255, 255 }, 1 };
+Color Color::white   = { { 255, 255, 255 }, 1 };
+Color Color::transparent = { { 0, 0, 0 }, 0 };
+Color Color::opaque      = { { 0, 0, 0 }, 255 };
+
 ostream& operator<<(ostream& o, const PItem& p) {
   switch (p.type) {
   case PBASE:  o << p.u.base.c; break;
