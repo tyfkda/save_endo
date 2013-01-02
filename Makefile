@@ -1,16 +1,25 @@
 
-OBJS=\
+DNA2RNA_OBJS=\
 	dna_to_rna.o \
-	image_builder.o \
-	main.o \
 	rope.o \
 	util.o \
 
-all:	$(OBJS)
-	g++ $(OBJS)
+RNA2IMAGE_OBJS=\
+	rna_to_image.o \
+	image_builder.o \
+	rope.o \
+	util.o \
+
+all:	dna_to_rna rna_to_image
+
+dna_to_rna:	$(DNA2RNA_OBJS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
+rna_to_image:	$(RNA2IMAGE_OBJS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 clean:
-	rm -rf $(OBJS) a.out
+	rm -rf $(DNA2RNA_OBJS) a.out
 
 # Flags passed to the preprocessor.
 CPPFLAGS += -I$(GTEST_DIR)/include

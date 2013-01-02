@@ -35,7 +35,7 @@ DnaToRna::DnaToRna(const Rope& dna) :
 void DnaToRna::Execute() {
   int n = 0;
   for (;;) {
-    printf("\r#%d dna:%ld rna:%ld ", n, dna_.size(), rna_.size());
+    fprintf(stderr, "\r#%d dna:%ld rna:%ld ", n, dna_.size(), rna_.size());
     fflush(stdout);
 
     if (!Step())
@@ -392,4 +392,44 @@ size_t DnaToRna::Search(const char* pattern, int patternLen,
   if (index != string::npos)
     return index + patternLen;
   return string::npos;
+}
+
+//============================================================================
+#include <fstream>
+
+void Main(const char* prefix, const char* filename) {
+  ifstream ifs(filename);
+  if (!ifs) {
+    cerr << "Cannot open \"" << filename << "\"" << endl;
+    return;
+  }
+
+  string dnabuf;
+  ifs >> dnabuf;
+
+  Rope dna;
+  if (prefix != NULL) {
+    dna = prefix;
+  }
+  dna += dnabuf;
+
+  DnaToRna dna2rna(dna);
+  dna2rna.Execute();
+
+  const vector<Rope>& rna = dna2rna.GetRna();
+  for (vector<Rope>::const_iterator it = rna.begin(); it != rna.end();
+       ++it) {
+    const Rope& rna = *it;
+    cout << rna << endl;
+  }
+}
+
+int main(int argc, char* argv[]) {
+  const char* prefix = NULL;
+  if (argc >= 2) {
+    prefix = argv[1];
+  }
+  Main(prefix, "endo.dna");
+
+  return 0;
 }

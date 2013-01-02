@@ -34,49 +34,53 @@ void ImageBuilder::Build(const vector<Rope>& rna) {
   for (vector<Rope>::const_iterator it = rna.begin();
        it != rna.end(); ++it) {
     const Rope& r = *it;
-    if (r == "PIPIIIC") {
-      AddColor(Color::black);
-    } else if (r == "PIPIIIP") {
-      AddColor(Color::red);
-    } else if (r == "PIPIICC") {
-      AddColor(Color::green);
-    } else if (r == "PIPIICF") {
-      AddColor(Color::yellow);
-    } else if (r == "PIPIICP") {
-      AddColor(Color::blue);
-    } else if (r == "PIPIIFC") {
-      AddColor(Color::magenta);
-    } else if (r == "PIPIIFF") {
-      AddColor(Color::cyan);
-    } else if (r == "PIPIIPC") {
-      AddColor(Color::white);
-    } else if (r == "PIPIIPF") {
-      AddColor(Color::transparent);
-    } else if (r == "PIPIIPP") {
-      AddColor(Color::opaque);
-    } else if (r == "PIIPICP") {
-      bucket_.clear();
-    } else if (r == "PIIIIIP") {
-      Move(&position_, dir_);
-    } else if (r == "PCCCCCP") {
-      dir_ = TurnCounterClockwise(dir_);
-    } else if (r == "PFFFFFP") {
-      dir_ = TurnClockwise(dir_);
-    } else if (r == "PCCIFFP") {
-      mark_ = position_;
-    } else if (r == "PFFICCP") {
-      Line(position_, mark_);
-    } else if (r == "PIIPIIP") {
-      TryFill();
-    } else if (r == "PCCPFFP") {
-      AddBitmap(Bitmap::transparentBitmap);
-    } else if (r == "PFFPCCP") {
-      Compose();
-    } else if (r == "PFFICCF") {
-      Clip();
-    } else {
-      cout << "Unknown: " << r << endl;
-    }
+    Step(r);
+  }
+}
+
+void ImageBuilder::Step(const Rope&  r) {
+  if (r == "PIPIIIC") {
+    AddColor(Color::black);
+  } else if (r == "PIPIIIP") {
+    AddColor(Color::red);
+  } else if (r == "PIPIICC") {
+    AddColor(Color::green);
+  } else if (r == "PIPIICF") {
+    AddColor(Color::yellow);
+  } else if (r == "PIPIICP") {
+    AddColor(Color::blue);
+  } else if (r == "PIPIIFC") {
+    AddColor(Color::magenta);
+  } else if (r == "PIPIIFF") {
+    AddColor(Color::cyan);
+  } else if (r == "PIPIIPC") {
+    AddColor(Color::white);
+  } else if (r == "PIPIIPF") {
+    AddColor(Color::transparent);
+  } else if (r == "PIPIIPP") {
+    AddColor(Color::opaque);
+  } else if (r == "PIIPICP") {
+    bucket_.clear();
+  } else if (r == "PIIIIIP") {
+    Move(&position_, dir_);
+  } else if (r == "PCCCCCP") {
+    dir_ = TurnCounterClockwise(dir_);
+  } else if (r == "PFFFFFP") {
+    dir_ = TurnClockwise(dir_);
+  } else if (r == "PCCIFFP") {
+    mark_ = position_;
+  } else if (r == "PFFICCP") {
+    Line(position_, mark_);
+  } else if (r == "PIIPIIP") {
+    TryFill();
+  } else if (r == "PCCPFFP") {
+    AddBitmap(Bitmap::transparentBitmap);
+  } else if (r == "PFFPCCP") {
+    Compose();
+  } else if (r == "PFFICCF") {
+    Clip();
+  } else {
+    cout << "Unknown: " << r << endl;
   }
 }
 

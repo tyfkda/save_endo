@@ -34,6 +34,7 @@ public:
   const Bitmap& GetBitmap() const { return bitmaps_[bitmaps_.size() - 1]; }
 
   void Build(const std::vector<Rope>& rna);
+  void Step(const Rope&  rna);
 
   void AddBitmap(const Bitmap& bitmap);
   void AddColor(const Color& c);
