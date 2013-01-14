@@ -29,6 +29,8 @@ CXXFLAGS += -g -Wall -Wextra -O2
 
 CXX = g++
 
+RUNHASKELL = runhaskell
+
 %.o:	%.cc
 	$(CXX) -c -o $@ $(CXXFLAGS) $<
 
@@ -108,5 +110,8 @@ image_builder_test:	image_builder_test.o image_builder.o util.o rope.o gtest_mai
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 image_builder_test.o:	image_builder_test.cc image_builder.h util.h $(GTEST_HEADERS)
+
+DnaToRnaTest:
+	$(RUNHASKELL) DnaToRnaTest.hs
 
 #
