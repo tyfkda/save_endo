@@ -7,8 +7,6 @@ http://save-endo.cs.uu.nl/
 
 The code is not working well.
 
+https://github.com/ktaobo/save_endo/wiki
 
-## Code.
-
-* Self check: IIPIFFCPICICIICPIICIPPPICIIC
-* IPIFFCPICFPPICIICCIICIPPPFIIC
+Please see [the Wiki page](https://github.com/ktaobo/save_endo/wiki).

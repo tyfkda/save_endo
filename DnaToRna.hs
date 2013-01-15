@@ -25,18 +25,6 @@ execute dna = loop empty dna
       | otherwise =
           let (subrna, dna') = step dna
           in loop (rna >< subrna) dna'
-  
-
-test1 dna = do
-  let (p, rna1, dna') = pattern dna
-  print p
-  print rna1
-  print dna'
-  let (t, rna2, dna'') = template dna'
-  print t
-  print rna2
-  print dna''
-
 
 step :: Dna -> (Rna, Dna)
 step dna =
@@ -171,7 +159,6 @@ consts dna
       let (s, dna') = consts (drop 2 dna)
       in ('P' <| s, dna')
   | otherwise = (empty, dna)
-
 
 startsWith :: Dna -> Dna -> Bool
 startsWith seq prefix = take (length prefix) seq == prefix
