@@ -10,6 +10,15 @@ RNA2IMAGE_OBJS=\
 	rope.o \
 	util.o \
 
+EXES=\
+	dna_to_rna \
+	rna_to_image \
+	dna_to_rna_test \
+	rope_test \
+	util_test \
+	DnaToRnaMain \
+	DnaToRnaTest \
+
 all:	dna_to_rna rna_to_image
 
 dna_to_rna:	$(DNA2RNA_OBJS)
@@ -20,6 +29,8 @@ rna_to_image:	$(RNA2IMAGE_OBJS)
 
 clean:
 	rm -rf $(DNA2RNA_OBJS) a.out
+	rm -rf $(EXES)
+	rm -rf *.hi *.o *.a
 
 # Flags passed to the preprocessor.
 CPPFLAGS += -I$(GTEST_DIR)/include
@@ -29,6 +40,7 @@ CXXFLAGS += -g -Wall -Wextra -O2
 
 CXX = g++
 
+GHC = ghc -O2
 RUNHASKELL = runhaskell
 
 %.o:	%.cc
@@ -113,5 +125,8 @@ image_builder_test.o:	image_builder_test.cc image_builder.h util.h $(GTEST_HEADE
 
 DnaToRnaTest:
 	$(RUNHASKELL) DnaToRnaTest.hs
+
+DnaToRnaMain:	DnaToRnaMain.hs DnaToRna.hs
+	$(GHC) DnaToRnaMain.hs
 
 #

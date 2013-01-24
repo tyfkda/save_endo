@@ -1,8 +1,8 @@
-import DnaToRna
-import Data.Foldable
-import Data.Sequence
+import DnaToRna (toDna, execute)
 import Prelude hiding (mapM_)
-import System
+import Data.Foldable (mapM_, toList)
+import Data.Sequence ((><))
+import System.Environment (getArgs)
 
 main = do
   cs <- getContents
