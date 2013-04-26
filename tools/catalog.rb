@@ -1,4 +1,11 @@
 #!ruby
+
+# Convert catalog page number to DNA prefix.
+#
+# Usage:
+#  $ ruby catalog.rb 1337
+#  IIPIFFCPICFPPICIICCCCCCCCCCCCIICIPPPFCCFFFCCFCFIIC
+
 Encode = {'0' => 'C', '1' => 'F'}
 
 page_no = ARGV.shift.to_i
