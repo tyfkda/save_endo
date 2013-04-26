@@ -1,5 +1,6 @@
 module DnaToRna where
-import Prelude hiding (take, drop, length, null)
+import Prelude hiding (take, drop, length, null, foldl)
+import Data.Foldable (foldl, toList)
 import Data.Sequence
 
 type Base = Char
@@ -18,19 +19,21 @@ toDna :: [Base] -> Dna
 toDna = fromList
 
 execute :: Dna -> Rna
-execute dna = loop empty dna
-  where
-    loop rna dna
-      | null dna = rna
-      | otherwise =
-          let (subrna, dna') = step dna
-          in loop (rna >< subrna) dna'
+execute dna | null dna = empty
+            | otherwise = cat $ unfoldr f dna
+  where f = Just . step
+        cat rs = foldl (\acc r -> acc >< r) empty $ toList rs
+
+execute1 :: Dna -> Maybe (Rna, Dna)
+execute1 dna = f dna
+  where f :: Dna -> Maybe (Rna, Dna)
+        f dna' | null dna' = Nothing
+               | otherwise = Just $ step dna'
 
 step :: Dna -> (Rna, Dna)
-step dna =
-  let (p, rna1, dna') = pattern dna
-      (t, rna2, dna'') = template dna'
-  in (rna1 >< rna2, matchreplace p t dna'')
+step dna = let (p, rna1, dna') = pattern dna
+               (t, rna2, dna'') = template dna'
+           in (rna1 >< rna2, matchreplace p t dna'')
 
 matchreplace :: Pattern -> Template -> Dna -> Dna
 matchreplace pat t dna = loop 0 empty empty pat t dna
@@ -74,9 +77,9 @@ quote d = case viewl d of
 
 asnat :: Int -> Dna
 asnat 0 = singleton 'P'
-asnat n
-  | even n = 'I' <| asnat (n `div` 2)
-  | odd  n = 'C' <| asnat (n `div` 2)
+asnat n | n < 0  = undefined
+        | even n = 'I' <| asnat (n `div` 2)
+        | odd  n = 'C' <| asnat (n `div` 2)
 
 search :: Dna -> Dna -> Maybe Int
 search sub dna =
@@ -108,7 +111,7 @@ pattern dna = loop empty 0 empty dna
             else loop (p |> PEnd) (lvl - 1) rna (drop 3 dna)
       | dna `startsWith` (toDna "III") =
           loop p lvl (rna |> subseq 3 10 dna) (drop 10 dna)
-      | otherwise = (p, rna, dna)
+      | otherwise = (p, rna, empty)
 
 template :: Dna -> (Template, Rna, Dna)
 template dna = loop empty empty dna
@@ -126,11 +129,11 @@ template dna = loop empty empty dna
       | (dna `startsWith` (toDna "IIC") ||
          dna `startsWith` (toDna "IIF")) = (t, rna, drop 3 dna)
       | dna `startsWith` (toDna "IIP") =
-          let (n, dna') = nat dna
+          let (n, dna') = nat (drop 3 dna)
           in loop (t |> TEncode n) rna dna'
       | dna `startsWith` (toDna "III") =
           loop t (rna |> subseq 3 10 dna) (drop 10 dna)
-      | otherwise = (t, rna, dna)
+      | otherwise = (t, rna, empty)
 
 
 nat :: Dna -> (Int, Dna)

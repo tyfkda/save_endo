@@ -80,7 +80,7 @@ void ImageBuilder::Step(const Rope&  r) {
   } else if (r == "PFFICCF") {
     Clip();
   } else {
-    cout << "Unknown: " << r << endl;
+    //cout << "Unknown: " << r << endl;
   }
 }
 

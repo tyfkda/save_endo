@@ -8,9 +8,10 @@ using namespace std;
 
 int main() {
   ImageBuilder image_builder;
-  while (!cin.eof()) {
+  for (;;) {
     char line[256];
-    cin.getline(line, sizeof(line));
+    if (!cin.getline(line, sizeof(line)))
+      break;
     image_builder.Step(Rope(line));
   }
 
