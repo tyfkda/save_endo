@@ -18,17 +18,9 @@ data TItem = TBase Base | TRefer Int Int | TEncode Int
 toDna :: [Base] -> Dna
 toDna = fromList
 
-execute :: Dna -> Rna
-execute dna | null dna = empty
-            | otherwise = cat $ unfoldr f dna
-  where f = Just . step
-        cat rs = foldl (\acc r -> acc >< r) empty $ toList rs
-
 execute1 :: Dna -> Maybe (Rna, Dna)
-execute1 dna = f dna
-  where f :: Dna -> Maybe (Rna, Dna)
-        f dna' | null dna' = Nothing
-               | otherwise = Just $ step dna'
+execute1 dna | null dna = Nothing
+             | otherwise = Just $ step dna
 
 step :: Dna -> (Rna, Dna)
 step dna = let (p, rna1, dna') = pattern dna
@@ -36,32 +28,32 @@ step dna = let (p, rna1, dna') = pattern dna
            in (rna1 >< rna2, matchreplace p t dna'')
 
 matchreplace :: Pattern -> Template -> Dna -> Dna
-matchreplace pat t dna = loop 0 empty empty pat t dna
+matchreplace pat t dna = loop 0 empty empty pat dna
   where
-    loop i e c pat t dna = case viewl pat of
-      (PBase b :< pat') -> if (index dna i) == b
-                             then loop (i + 1) e c pat' t dna
+    loop i e c pat dna = case viewl pat of
+      (PBase b :< pat') -> if index dna i == b
+                             then loop (i + 1) e c pat' dna
                              else dna
       (PSkip n :< pat') -> if i + n > length dna
                              then dna
-                             else loop (i + n) e c pat' t dna
+                             else loop (i + n) e c pat' dna
       (PSearch s :< pat') ->
         case search s (drop i dna) of
-          Just n -> loop (i + n + (length s)) e c pat' t dna
+          Just n -> loop (i + n + length s) e c pat' dna
           Nothing -> dna
-      (PBegin :< pat') -> loop i e (i <| c) pat' t dna
-      (PEnd :< pat') -> loop i (e |> subseq (index c 0) i dna) (drop 1 c) pat' t dna
+      (PBegin :< pat') -> loop i e (i <| c) pat' dna
+      (PEnd :< pat') -> loop i (e |> subseq (index c 0) i dna) (drop 1 c) pat' dna
       EmptyL ->
-        replace t e >< (drop i dna)
+        replace t e (drop i dna)
 
-replace :: Template -> Seq Dna -> Dna
-replace tpl e = loop empty tpl
+replace :: Template -> Seq Dna -> Dna -> Dna
+replace tpl e dna = loop empty tpl
   where
     loop r tpl = case viewl tpl of
       (TBase b :< tpl') -> loop (r |> b) tpl'
       (TRefer n l :< tpl') -> loop (r >< protect l (index e n)) tpl'
       (TEncode n :< tpl') -> loop (r >< asnat (length (index e n))) tpl'
-      EmptyL -> r
+      EmptyL -> r >< dna
 
 protect :: Int -> Dna -> Dna
 protect 0 d = d
@@ -72,7 +64,7 @@ quote d = case viewl d of
   ('I' :< d') -> 'C' <| quote d'
   ('C' :< d') -> 'F' <| quote d'
   ('F' :< d') -> 'P' <| quote d'
-  ('P' :< d') -> 'I' <| 'C' <| quote d'
+  ('P' :< d') -> (toDna "IC") >< quote d'
   EmptyL -> empty
 
 asnat :: Int -> Dna
