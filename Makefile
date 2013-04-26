@@ -19,7 +19,7 @@ EXES=\
 	DnaToRnaMain \
 	DnaToRnaTest \
 
-all:	dna_to_rna rna_to_image
+all:	DnaToRnaMain rna_to_image
 
 dna_to_rna:	$(DNA2RNA_OBJS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@

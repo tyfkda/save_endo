@@ -51,8 +51,14 @@ replace tpl e dna = loop empty tpl
   where
     loop r tpl = case viewl tpl of
       (TBase b :< tpl') -> loop (r |> b) tpl'
-      (TRefer n l :< tpl') -> loop (r >< protect l (index e n)) tpl'
-      (TEncode n :< tpl') -> loop (r >< asnat (length (index e n))) tpl'
+      (TRefer n l :< tpl') ->
+        let ref = if n < length e then index e n
+                                  else empty
+        in loop (r >< protect l ref) tpl'
+      (TEncode n :< tpl') ->
+        let len = if n < length e then length $ index e n
+                                  else 0
+        in loop (r >< asnat len) tpl'
       EmptyL -> r >< dna
 
 protect :: Int -> Dna -> Dna
