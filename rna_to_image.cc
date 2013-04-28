@@ -15,7 +15,7 @@ int main() {
     image_builder.Step(Rope(line));
   }
 
-  SavePpm("image.ppm", image_builder.GetBitmap(), Bitmap::W, Bitmap::H);
+  SavePng("image.png", Bitmap::W, Bitmap::H, image_builder.GetBitmap());
 
   return 0;
 }

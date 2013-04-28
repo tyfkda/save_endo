@@ -3,6 +3,7 @@
 #include "rope.h"
 #include "image_builder.h"
 #include <assert.h>
+#include <png.h>
 #include <iostream>
 
 using namespace std;
@@ -45,14 +46,46 @@ const Rope& Environment::Get(size_t i) const {
   return dna_[i];
 }
 
-void SavePpm(const char* filename, const Bitmap& bitmap, int w, int h) {
-  FILE* fp = fopen(filename, "w");
-  fprintf(fp, "P3\n%d %d\n%d\n", w, h, 255);
-  for (int i = 0; i < h; ++i) {
-    for (int j = 0; j < w; ++j) {
+// Save full-color png to file.
+bool SavePng(const char* filename, int width, int height,
+             const png_bytep bitmap) {
+  png_structp pp = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL,
+                                           NULL);
+  png_infop ip = png_create_info_struct(pp);
+  // Initialize.
+  FILE* fp = fopen(filename, "wb");
+  png_init_io(pp, fp);
+  png_set_IHDR(pp, ip, width, height,
+               8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
+               PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+  // Line buffer.
+  png_bytepp raw2D = (png_bytepp)malloc(height * sizeof(png_bytep));
+  for (int i = 0; i < height; i++)
+    raw2D[i] = &bitmap[i*png_get_rowbytes(pp, ip)];
+
+  // Write.
+  png_write_info(pp, ip);
+  png_write_image(pp, raw2D);
+  png_write_end(pp, ip);
+  // Free.
+  png_destroy_write_struct(&pp, &ip);
+  free(raw2D);
+  fclose(fp);
+  return true;
+}
+
+bool SavePng(const char* filename, int width, int height, const Bitmap& bitmap) {
+  unsigned char* image = new unsigned char[width * height * 4];
+  for (int i = 0; i < height; ++i) {
+    for (int j = 0; j < width; ++j) {
       const Pixel& p = bitmap.GetPixel(j, i);
-      fprintf(fp, "%d %d %d ", p.rgb.r, p.rgb.g, p.rgb.b);
+      image[(i * width + j) * 4 + 0] = p.rgb.r;
+      image[(i * width + j) * 4 + 1] = p.rgb.g;
+      image[(i * width + j) * 4 + 2] = p.rgb.b;
+      image[(i * width + j) * 4 + 3] = 255;
     }
   }
-  fclose(fp);
+  bool result = SavePng(filename, width, height, image);
+  delete[] image;
+  return result;
 }

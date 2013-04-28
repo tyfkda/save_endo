@@ -161,7 +161,7 @@ struct Color {
 
 typedef Color Pixel;
 
-// Save image in PPM format.
-void SavePpm(const char* filename, const Bitmap& bitmap, int w, int h);
+// Save image in PNG format.
+bool SavePng(const char* filename, int width, int height, const Bitmap& bitmap);
 
 #endif

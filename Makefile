@@ -25,18 +25,22 @@ dna_to_rna:	$(DNA2RNA_OBJS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 rna_to_image:	$(RNA2IMAGE_OBJS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LIBPATH) $(LIBS) $^ -o $@
 
 clean:
 	rm -rf $(DNA2RNA_OBJS) a.out
 	rm -rf $(EXES)
 	rm -rf *.hi *.o *.a
 
+INC += -I $(INCLUDE)
+LIBPATH += -L $(LIB)
+LIBS += -lpng
+
 # Flags passed to the preprocessor.
 CPPFLAGS += -I$(GTEST_DIR)/include
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -O2
+CXXFLAGS += -g -Wall -Wextra -O2 $(INC)
 
 CXX = g++
 
