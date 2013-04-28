@@ -15,27 +15,22 @@ Bitmap::Bitmap() {
   }
 }
 
+const Bitmap& Bitmap::operator=(const Bitmap& src) {
+  memcpy(bitmap, src.bitmap, sizeof(bitmap));
+  return *this;
+}
+
 void Bitmap::SetPixel(int x, int y, const Pixel& c) {
   if (0 <= x && x < W && 0 <= y && y < H) {
     bitmap[y * W + x] = c;
   }
 }
-
+  
 
 ImageBuilder::ImageBuilder() : dir_(East) {
   position_.x = position_.y = 0;
   mark_.x = mark_.y = 0;
   bitmaps_.push_back(Bitmap::transparentBitmap);
-}
-
-void ImageBuilder::Build(const vector<Rope>& rna) {
-  cout << "rna: #" << rna.size() << endl;
-
-  for (vector<Rope>::const_iterator it = rna.begin();
-       it != rna.end(); ++it) {
-    const Rope& r = *it;
-    Step(r);
-  }
 }
 
 void ImageBuilder::Step(const Rope&  r) {

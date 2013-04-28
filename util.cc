@@ -79,9 +79,15 @@ bool SavePng(const char* filename, int width, int height, const Bitmap& bitmap) 
   for (int i = 0; i < height; ++i) {
     for (int j = 0; j < width; ++j) {
       const Pixel& p = bitmap.GetPixel(j, i);
-      image[(i * width + j) * 4 + 0] = p.rgb.r;
-      image[(i * width + j) * 4 + 1] = p.rgb.g;
-      image[(i * width + j) * 4 + 2] = p.rgb.b;
+      if (p.rgb.r == 0 && p.rgb.g == 0 && p.rgb.b == 0 && p.a == 0) {
+        image[(i * width + j) * 4 + 0] = 255;
+        image[(i * width + j) * 4 + 1] = 0;
+        image[(i * width + j) * 4 + 2] = 255;
+      } else {
+        image[(i * width + j) * 4 + 0] = p.rgb.r;
+        image[(i * width + j) * 4 + 1] = p.rgb.g;
+        image[(i * width + j) * 4 + 2] = p.rgb.b;
+      }
       image[(i * width + j) * 4 + 3] = 255;
     }
   }

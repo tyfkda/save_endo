@@ -19,10 +19,13 @@ struct Bitmap {
   Pixel bitmap[W * H];
 
   Bitmap();
+  Bitmap(const Bitmap& src)  { *this = src; }
   const Pixel& GetPixel(int x, int y) const {
     return bitmap[y * W + x];
   }
   void SetPixel(int x, int y, const Pixel& c);
+
+  const Bitmap& operator=(const Bitmap& src);
 
   static Bitmap transparentBitmap;
 };
@@ -31,9 +34,10 @@ class ImageBuilder {
 public:
   ImageBuilder();
 
-  const Bitmap& GetBitmap() const { return bitmaps_[bitmaps_.size() - 1]; }
+  size_t GetBitmapCount() const { return bitmaps_.size(); }
+  const Bitmap& GetBitmap(int i) const { return bitmaps_[i]; }
+  const Bitmap& GetLastBitmap() const { return bitmaps_[bitmaps_.size() - 1]; }
 
-  void Build(const std::vector<Rope>& rna);
   void Step(const Rope&  rna);
 
   void AddBitmap(const Bitmap& bitmap);
