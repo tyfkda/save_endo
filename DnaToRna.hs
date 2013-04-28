@@ -9,11 +9,23 @@ type Rna = Seq Dna
 
 type Pattern = Seq PItem
 data PItem = PBase Base | PSkip Int | PSearch Dna | PBegin | PEnd
-  deriving (Eq, Show)
+  deriving (Eq)
 
 type Template = Seq TItem
 data TItem = TBase Base | TRefer Int Int | TEncode Int
-  deriving (Eq, Show)
+  deriving (Eq)
+
+instance Show PItem where
+  show (PBase b) = [b]
+  show (PSkip n) = "!" ++ show n
+  show (PSearch dna) = "?\"" ++ toList dna ++ "\""
+  show (PBegin) = "("
+  show (PEnd) = ")"
+
+instance Show TItem where
+  show (TBase b) = [b]
+  show (TRefer n l) = "[" ++ show n ++ "," ++ show l ++ "]"
+  show (TEncode n) = "|" ++ show n ++ "|"
 
 toDna :: [Base] -> Dna
 toDna = fromList
@@ -87,48 +99,63 @@ search sub dna =
        else Just $ length skip
 
 pattern :: Dna -> (Pattern, Rna, Dna)
-pattern dna = loop empty 0 empty dna
+pattern dna =
+  let (ss, rna, dna') = pattern2 dna
+  in (pickpatterns ss, rna, dna')
+  where pickpatterns ss = fromList $ map fst $ toList ss
+
+consumed :: Dna -> Dna -> Dna
+consumed src dst = take (length src - length dst) src
+
+pattern2 :: Dna -> (Seq (PItem, [Dna]), Rna, Dna)
+pattern2 dna = loop empty 0 empty dna
   where
     loop p lvl rna dna
-      | dna `startsWith` (toDna "C") = loop (p |> PBase 'I') lvl rna (drop 1 dna)
-      | dna `startsWith` (toDna "F") = loop (p |> PBase 'C') lvl rna (drop 1 dna)
-      | dna `startsWith` (toDna "P") = loop (p |> PBase 'F') lvl rna (drop 1 dna)
-      | dna `startsWith` (toDna "IC") = loop (p |> PBase 'P') lvl rna (drop 2 dna)
+      | dna `startsWith` (toDna "C") = loop (p |> (PBase 'I', [take 1 dna])) lvl rna (drop 1 dna)
+      | dna `startsWith` (toDna "F") = loop (p |> (PBase 'C', [take 1 dna])) lvl rna (drop 1 dna)
+      | dna `startsWith` (toDna "P") = loop (p |> (PBase 'F', [take 1 dna])) lvl rna (drop 1 dna)
+      | dna `startsWith` (toDna "IC") = loop (p |> (PBase 'P', [take 2 dna])) lvl rna (drop 2 dna)
       | dna `startsWith` (toDna "IP") =
           let (n, dna') = nat (drop 2 dna)
-          in loop (p |> PSkip n) lvl rna dna'
+          in loop (p |> (PSkip n, [take 2 dna, consumed (drop 2 dna) dna'])) lvl rna dna'
       | dna `startsWith` (toDna "IF") =
           let (s, dna') = consts (drop 3 dna)
-          in loop (p |> PSearch s) lvl rna dna'
+          in loop (p |> (PSearch s, [take 3 dna, consumed (drop 3 dna) dna'])) lvl rna dna'
       | dna `startsWith` (toDna "IIP") =
-          loop (p |> PBegin) (lvl + 1) rna (drop 3 dna)
+          loop (p |> (PBegin, [take 3 dna])) (lvl + 1) rna (drop 3 dna)
       | (dna `startsWith` (toDna "IIC") ||
          dna `startsWith` (toDna "IIF")) =
           if lvl == 0
             then (p, rna, (drop 3 dna))
-            else loop (p |> PEnd) (lvl - 1) rna (drop 3 dna)
+            else loop (p |> (PEnd, [take 3 dna])) (lvl - 1) rna (drop 3 dna)
       | dna `startsWith` (toDna "III") =
           loop p lvl (rna |> subseq 3 10 dna) (drop 10 dna)
       | otherwise = (p, rna, empty)
 
 template :: Dna -> (Template, Rna, Dna)
-template dna = loop empty empty dna
+template dna =
+  let (ss, rna, dna') = template2 dna
+  in (picktemplates ss, rna, dna')
+  where picktemplates ss = fromList $ map fst $ toList ss
+
+template2 :: Dna -> (Seq (TItem, [Dna]), Rna, Dna)
+template2 dna = loop empty empty dna
   where
     loop t rna dna
-      | dna `startsWith` (toDna "C") = loop (t |> TBase 'I') rna (drop 1 dna)
-      | dna `startsWith` (toDna "F") = loop (t |> TBase 'C') rna (drop 1 dna)
-      | dna `startsWith` (toDna "P") = loop (t |> TBase 'F') rna (drop 1 dna)
-      | dna `startsWith` (toDna "IC") = loop (t |> TBase 'P') rna (drop 2 dna)
+      | dna `startsWith` (toDna "C") = loop (t |> (TBase 'I', [take 1 dna])) rna (drop 1 dna)
+      | dna `startsWith` (toDna "F") = loop (t |> (TBase 'C', [take 1 dna])) rna (drop 1 dna)
+      | dna `startsWith` (toDna "P") = loop (t |> (TBase 'F', [take 1 dna])) rna (drop 1 dna)
+      | dna `startsWith` (toDna "IC") = loop (t |> (TBase 'P', [take 2 dna])) rna (drop 2 dna)
       | (dna `startsWith` (toDna "IF") ||
          dna `startsWith` (toDna "IP")) =
           let (l, dna') = nat (drop 2 dna)
               (n, dna'') = nat dna'
-          in loop (t |> TRefer n l) rna dna''
+          in loop (t |> (TRefer n l, [take 2 dna, consumed (drop 2 dna) dna', consumed dna' dna''])) rna dna''
       | (dna `startsWith` (toDna "IIC") ||
          dna `startsWith` (toDna "IIF")) = (t, rna, drop 3 dna)
       | dna `startsWith` (toDna "IIP") =
           let (n, dna') = nat (drop 3 dna)
-          in loop (t |> TEncode n) rna dna'
+          in loop (t |> (TEncode n, [take 3 dna, consumed (drop 3 dna) dna'])) rna dna'
       | dna `startsWith` (toDna "III") =
           loop t (rna |> subseq 3 10 dna) (drop 10 dna)
       | otherwise = (t, rna, empty)
