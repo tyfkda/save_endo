@@ -20,6 +20,19 @@ const Bitmap& Bitmap::operator=(const Bitmap& src) {
   return *this;
 }
 
+void Bitmap::Compose(const Bitmap& layer) {
+  const Bitmap* b0 = &layer;
+  Bitmap* b1 = this;
+  for (int i = 0; i < Bitmap::W * Bitmap::H; ++i) {
+    const Pixel* p0 = &b0->bitmap[i];
+    Pixel* p1 = &b1->bitmap[i];
+    p1->rgb.r = p0->rgb.r + (p1->rgb.r * (255 - p0->a) / 255);
+    p1->rgb.g = p0->rgb.g + (p1->rgb.g * (255 - p0->a) / 255);
+    p1->rgb.b = p0->rgb.b + (p1->rgb.b * (255 - p0->a) / 255);
+    p1->a = p0->a + (p1->a * (255 - p0->a) / 255);
+  }
+}
+
 void Bitmap::SetPixel(int x, int y, const Pixel& c) {
   if (0 <= x && x < W && 0 <= y && y < H) {
     bitmap[y * W + x] = c;
@@ -196,14 +209,7 @@ void ImageBuilder::Compose() {
   if (bitmaps_.size() >= 2) {
     Bitmap* b0 = &bitmaps_[bitmaps_.size() - 1];
     Bitmap* b1 = &bitmaps_[bitmaps_.size() - 2];
-    for (int i = 0; i < Bitmap::W * Bitmap::H; ++i) {
-      Pixel* p0 = &b0->bitmap[i];
-      Pixel* p1 = &b1->bitmap[i];
-      p1->rgb.r = p0->rgb.r + (p1->rgb.r * (255 - p0->a) / 255);
-      p1->rgb.g = p0->rgb.g + (p1->rgb.g * (255 - p0->a) / 255);
-      p1->rgb.b = p0->rgb.b + (p1->rgb.b * (255 - p0->a) / 255);
-      p1->a = p0->a + (p1->a * (255 - p0->a) / 255);
-    }
+    b1->Compose(*b0);
     bitmaps_.pop_back();
   }
 }

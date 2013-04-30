@@ -25,6 +25,8 @@ struct Bitmap {
   }
   void SetPixel(int x, int y, const Pixel& c);
 
+  void Compose(const Bitmap& layer);
+
   const Bitmap& operator=(const Bitmap& src);
 
   static Bitmap transparentBitmap;

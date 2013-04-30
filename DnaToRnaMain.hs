@@ -1,28 +1,19 @@
 {-# LANGUAGE DeriveDataTypeable #-}
-import DnaToRna --(toDna, execute1)
-import Prelude hiding (mapM_)
+import DnaToRna (execute1, toDna, pattern2, search, template2)
+import Prelude hiding (drop, mapM_)
 import Data.Foldable (mapM_, toList)
 import Data.List (intercalate)
-import Data.Sequence ((><))
+import Data.Sequence (drop, (><))
 import System.Environment (getArgs)
-import System.IO
---import System.Console.CmdArgs
-import System.Console.GetOpt  --(ArgOrder(..), getOpt)
-
---data Option = Option { label :: String,
---                       size :: Int }
---  deriving (Show, Data, Typeable)
-
---option = Option { label = "no label",
---                  size = 0 }
+import System.IO (IOMode(..), hClose, hPutStrLn, openFile)
+import System.Console.GetOpt (ArgDescr(..), ArgOrder(..), OptDescr(..), getOpt)
+import Control.Monad (forM_)
 
 main = do
-  --opt <- cmdArgs option
-  --print opt
-
   let options = [
                  Option ['h'] ["help"] (NoArg 'h') "Show help.",
-                 Option ['d'] ["dump"] (NoArg 'd') "Dump prefix dna."
+                 Option ['d'] ["disasm"] (NoArg 'd') "Disassemble prefix dna.",
+                 Option ['s'] ["search"] (NoArg 's') "Search prefix."
                 ]
   args <- getArgs
   let (opts, left, err) = getOpt Permute options args
@@ -31,8 +22,17 @@ main = do
     else do
       let prefix = if left == [] then ""
                                  else left !! 0
-      if 'd' `elem` opts then dumpPrefix prefix
-                         else convert prefix
+      if 'h' `elem` opts then printHelp
+        else if 'd' `elem` opts then dumpPrefix prefix
+          else if 's' `elem` opts then searchPrefix left
+                                  else convert prefix
+
+printHelp = do
+  putStrLn "usage: DnaToRnaMain [OPTION...] < dna-file"
+  putStrLn "options:"
+  putStrLn "  -h --help    Print usage"
+  putStrLn "  -d --dump    Disassemble prefix dna"
+  putStrLn "  -s --search  Search prefix dna from "
 
 convert prefix = do
   cs <- getContents
@@ -65,3 +65,14 @@ dumpPrefix prefix = do
   putStrLn ("\nTemplate: " ++ concatMap (show . fst) (toList tss))
   mapM_ (\(titem, dnas) -> putStrLn (show titem ++ "\t" ++ (intercalate " " $ map toList $ toList dnas))) $ toList tss
   putStrLn ("\nLeft: [" ++ toList dna'' ++ "]")
+
+searchPrefix prefixs = do
+  cs <- getContents
+  let dna = toDna cs
+  loop dna 0 prefixs
+  where loop dna _ [] = return ()
+        loop dna ofs (prefix: prefixs) = do
+          let sub = toDna prefix
+          case search sub dna of
+            Nothing -> putStrLn (prefix ++ ": Cannot find prefix") >> loop dna ofs prefixs
+            Just i  -> putStrLn (prefix ++ ": Found at " ++ show (i + ofs)) >> loop (drop (i + length prefix) dna) (i + length prefix) prefixs
