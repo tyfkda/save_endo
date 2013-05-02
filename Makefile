@@ -10,6 +10,11 @@ RNA2IMAGE_OBJS=\
 	rope.o \
 	util.o \
 
+CALC_RISK_OBJS=\
+	calc_risk.o \
+	rope.o \
+	util.o \
+
 EXES=\
 	dna_to_rna \
 	rna_to_image \
@@ -25,6 +30,9 @@ dna_to_rna:	$(DNA2RNA_OBJS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 rna_to_image:	$(RNA2IMAGE_OBJS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LIBPATH) $(LIBS) $^ -o $@
+
+calc_risk:	$(CALC_RISK_OBJS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LIBPATH) $(LIBS) $^ -o $@
 
 clean:

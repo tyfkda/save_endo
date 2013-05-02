@@ -162,6 +162,11 @@ struct Color {
 typedef Color Pixel;
 
 // Save image in PNG format.
+bool SavePng(const char* filename, int width, int height,
+             const void* raw_image);
 bool SavePng(const char* filename, int width, int height, const Bitmap& bitmap);
+
+// Load PNG image.
+unsigned char* LoadPng(const char* filename, int* pwidth, int* pheight);
 
 #endif
