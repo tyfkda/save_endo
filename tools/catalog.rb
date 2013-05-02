@@ -6,9 +6,12 @@
 #  $ ruby catalog.rb 1337
 #  IIPIFFCPICFPPICIICCCCCCCCCCCCIICIPPPFCCFFFCCFCFIIC
 
-Encode = {'0' => 'C', '1' => 'F'}
+$:.unshift(File.dirname(File.expand_path(__FILE__)))
+require 'util'
 
-page_no = ARGV.shift.to_i
-page_code = sprintf("%b", page_no).reverse.gsub(/[01]/, Encode)
-src = "C" * page_code.length
-puts "IIPIFFCPICFPPICIIC#{src}IICIPPP#{page_code}IIC"
+if $0 == __FILE__
+  page_no = ARGV.shift.to_i
+  page_code = asnat(page_no)
+  src = "C" * page_code.length
+  puts "IIPIFFCPICFPPICIIC#{src}IICIPPP#{protect(1, page_code)}IIC"
+end

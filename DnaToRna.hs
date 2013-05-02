@@ -24,7 +24,7 @@ instance Show PItem where
 
 instance Show TItem where
   show (TBase b) = [b]
-  show (TRefer n l) = "[" ++ show n ++ "," ++ show l ++ "]"
+  show (TRefer n l) = "{" ++ show n ++ "_" ++ show l ++ "}"
   show (TEncode n) = "|" ++ show n ++ "|"
 
 toDna :: [Base] -> Dna
