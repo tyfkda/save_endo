@@ -28,7 +28,7 @@ main = do
                                   else convert prefix
 
 printHelp = do
-  putStrLn "usage: DnaToRnaMain [OPTION...] < dna-file"
+  putStrLn "usage: DnaToRnaMain [OPTION...] [DNA-prefix] < dna-file"
   putStrLn "options:"
   putStrLn "  -h --help    Print usage"
   putStrLn "  -d --dump    Disassemble prefix dna"
