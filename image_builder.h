@@ -13,7 +13,8 @@ enum Dir {
   West,
 };
 
-struct Bitmap {
+class Bitmap {
+public:
   static const int W = 600, H = 600;
 
   Pixel bitmap[W * H];

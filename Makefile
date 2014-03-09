@@ -40,15 +40,15 @@ clean:
 	rm -rf $(EXES)
 	rm -rf *.hi *.o *.a
 
-INC += -I $(INCLUDE)
-LIBPATH += -L $(LIB)
-LIBS += -lpng
+INC =
+LIBPATH =
+LIBS = -lpng
 
 # Flags passed to the preprocessor.
-CPPFLAGS += -I$(GTEST_DIR)/include
+CPPFLAGS = -I$(GTEST_DIR)/include
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -O2 $(INC)
+CXXFLAGS = -g -Wall -Wextra -O2 $(INC)
 
 CXX = g++
 

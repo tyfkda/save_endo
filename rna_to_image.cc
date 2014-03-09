@@ -101,7 +101,6 @@ int main(int argc, char* argv[]) {
             }
           }
 
-          Pixel col = image_builder.CurrentPixel();
           cerr << "#" << no << "/" << lineno << ":" << line << endl;
 
           char fn[256];
