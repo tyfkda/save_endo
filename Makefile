@@ -1,9 +1,4 @@
 
-DNA2RNA_OBJS=\
-	dna_to_rna.o \
-	rope.o \
-	util.o \
-
 RNA2IMAGE_OBJS=\
 	rna_to_image.o \
 	image_builder.o \
@@ -16,18 +11,13 @@ CALC_RISK_OBJS=\
 	util.o \
 
 EXES=\
-	dna_to_rna \
 	rna_to_image \
-	dna_to_rna_test \
 	rope_test \
 	util_test \
 	DnaToRnaMain \
 	DnaToRnaTest \
 
 all:	DnaToRnaMain rna_to_image
-
-dna_to_rna:	$(DNA2RNA_OBJS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 rna_to_image:	$(RNA2IMAGE_OBJS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LIBPATH) $(LIBS) $^ -o $@
@@ -59,9 +49,7 @@ RUNHASKELL = runhaskell
 	$(CXX) -c -o $@ $(CXXFLAGS) $<
 
 
-dna_to_rna.o:	dna_to_rna.cc dna_to_rna.h rope.h util.h
 image_builder.o:	image_builder.cc image_builder.h rope.h
-main.o:	main.cc dna_to_rna.h image_builder.h rope.h
 rope.o:	rope.cc rope.h
 util.o:	util.cc util.h image_builder.h rope.h
 
@@ -69,7 +57,7 @@ util.o:	util.cc util.h image_builder.h rope.h
 
 
 
-TESTS=rope_test dna_to_rna_test
+TESTS=rope_test
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
@@ -114,11 +102,6 @@ gtest_main.a : gtest-all.o gtest_main.o
 # function.
 
 tests:	$(TESTS)
-
-dna_to_rna_test:	dna_to_rna_test.o dna_to_rna.o util.o rope.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-
-dna_to_rna_test.o:	dna_to_rna_test.cc dna_to_rna.h util.h $(GTEST_HEADERS)
 
 rope_test:	rope_test.o rope.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
