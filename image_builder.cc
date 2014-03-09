@@ -38,7 +38,6 @@ void Bitmap::SetPixel(int x, int y, const Pixel& c) {
     bitmap[y * W + x] = c;
   }
 }
-  
 
 ImageBuilder::ImageBuilder() : dir_(East) {
   position_.x = position_.y = 0;
@@ -165,7 +164,7 @@ Dir ImageBuilder::TurnClockwise(Dir dir) {
 
 void ImageBuilder::Line(const Pos& p0, const Pos& p1) {
   Pixel pix = CurrentPixel();
-  
+
   int deltax = p1.x - p0.x;
   int deltay = p1.y - p0.y;
   int d = max(abs(deltax), abs(deltay));
@@ -191,7 +190,7 @@ void ImageBuilder::TryFill() {
 void ImageBuilder::Fill(const Pos& pos, const Pixel& initial, const Pixel& newColor) {
   vector<Pos> buf;
   buf.push_back(pos);
-  
+
   while (!buf.empty()) {
     Pos p = buf[buf.size() - 1];
     buf.pop_back();
