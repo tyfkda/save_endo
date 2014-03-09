@@ -5,7 +5,7 @@ import Data.Foldable (mapM_, toList)
 import Data.List (intercalate)
 import Data.Sequence (drop, (><))
 import System.Environment (getArgs)
-import System.IO (IOMode(..), hClose, hPutStrLn, openFile)
+import System.IO (IOMode(..), hClose, hPutStrLn, openFile, stdout, stderr)
 import System.Console.GetOpt (ArgDescr(..), ArgOrder(..), OptDescr(..), getOpt)
 import Control.Monad (forM_)
 
@@ -39,14 +39,12 @@ convert prefix = do
   args <- getArgs
   let dna = toDna prefix >< toDna cs
   let n = 10000000000
-  fhRna <- openFile "rna" WriteMode
-  loop fhRna 0 n dna
-  hClose fhRna
+  loop stdout 0 n dna
 
 loop fhRna i n dna | i >= n = putStrLn (show n ++ " loop over")
                    | otherwise = do
   case execute1 dna of
-    Nothing -> putStrLn ("Dna is fully converted to Rna at #" ++ show i)
+    Nothing -> hPutStrLn stderr ("Dna is fully converted to Rna at #" ++ show i)
     Just (rna, dna') -> do
       writeRna fhRna rna
       loop fhRna (i + 1) n dna'
