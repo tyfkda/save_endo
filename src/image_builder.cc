@@ -127,7 +127,10 @@ Pixel ImageBuilder::CurrentPixel() const {
     g /= nrgb;
     b /= nrgb;
   }
-  Pixel p = { { r * a / 255, g * a / 255, b * a / 255 }, a };
+  Pixel p = { { (unsigned char)(r * a / 255),
+                (unsigned char)(g * a / 255),
+                (unsigned char)(b * a / 255) },
+              (unsigned char)a };
   return p;
 }
 

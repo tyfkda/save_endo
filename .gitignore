@@ -1,8 +1,14 @@
+/bin/*
+
 # Compiled Object files
 *.slo
 *.lo
 *.o
 *.hi
+
+# Test files
+/src/rope_test
+/src/util_test
 
 # Compiled Dynamic libraries
 *.so
