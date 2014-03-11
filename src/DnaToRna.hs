@@ -1,7 +1,7 @@
 module DnaToRna where
 import Prelude hiding (take, drop, length, null, foldl)
 import Data.Foldable (foldl, toList)
-import Data.Sequence
+import Data.Sequence (Seq, ViewL(..), breakl, drop, empty, fromList, index, length, null, singleton, tails, take, viewl, (|>), (<|), (><))
 
 type Base = Char
 type Dna = Seq Base
