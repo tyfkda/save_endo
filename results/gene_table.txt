@@ -320,7 +320,7 @@
 278709 000701 pear
 58822c 00372b peartree
 71e3b4 000048 pictureDescrRenderer_adaptation
-0c91e0 000018 polar AngleIncr
+0c91e0 000018 polarAngleIncr
 54b4f7 002a5a printCharSet
 284bc3 0272c1 printGeneTable
 2acbbb 0008d7 randomInt

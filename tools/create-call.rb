@@ -314,6 +314,7 @@ FuncTable = {
   "pear" => { :offset => 0x278709, :size => 0x000701 },
   "peartree" => { :offset => 0x58822c, :size => 0x00372b },
   "pictureDescrRenderer_adaptation" => { :offset => 0x71e3b4, :size => 0x000048 },
+  "polarAngleIncr" => { :offset => 0x0c91e0, :size => 0x000018 },
   "printCharSet" => { :offset => 0x54b4f7, :size => 0x002a5a },
   "printGeneTable" => { :offset => 0x284bc3, :size => 0x0272c1 },
   "randomInt" => { :offset => 0x2acbbb, :size => 0x0008d7 },
