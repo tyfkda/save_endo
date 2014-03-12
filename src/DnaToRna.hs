@@ -111,26 +111,28 @@ pattern2 :: Dna -> (Seq (PItem, [Dna]), Rna, Dna)
 pattern2 dna = loop empty 0 empty dna
   where
     loop p lvl rna dna
-      | dna `startsWith` (toDna "C") = loop (p |> (PBase 'I', [take 1 dna])) lvl rna (drop 1 dna)
-      | dna `startsWith` (toDna "F") = loop (p |> (PBase 'C', [take 1 dna])) lvl rna (drop 1 dna)
-      | dna `startsWith` (toDna "P") = loop (p |> (PBase 'F', [take 1 dna])) lvl rna (drop 1 dna)
-      | dna `startsWith` (toDna "IC") = loop (p |> (PBase 'P', [take 2 dna])) lvl rna (drop 2 dna)
-      | dna `startsWith` (toDna "IP") =
+      | d1 == 'C' = loop (p |> (PBase 'I', [take 1 dna])) lvl rna (drop 1 dna)
+      | d1 == 'F' = loop (p |> (PBase 'C', [take 1 dna])) lvl rna (drop 1 dna)
+      | d1 == 'P' = loop (p |> (PBase 'F', [take 1 dna])) lvl rna (drop 1 dna)
+      | d2 == dnaIC = loop (p |> (PBase 'P', [take 2 dna])) lvl rna (drop 2 dna)
+      | d2 == dnaIP =
           let (n, dna') = nat (drop 2 dna)
           in loop (p |> (PSkip n, [take 2 dna, consumed (drop 2 dna) dna'])) lvl rna dna'
-      | dna `startsWith` (toDna "IF") =
+      | d2 == dnaIF =
           let (s, dna') = consts (drop 3 dna)
           in loop (p |> (PSearch s, [take 3 dna, consumed (drop 3 dna) dna'])) lvl rna dna'
-      | dna `startsWith` (toDna "IIP") =
+      | d3 == dnaIIP =
           loop (p |> (PBegin, [take 3 dna])) (lvl + 1) rna (drop 3 dna)
-      | (dna `startsWith` (toDna "IIC") ||
-         dna `startsWith` (toDna "IIF")) =
+      | d3 == dnaIIC || d3 == dnaIIF =
           if lvl == 0
             then (p, rna, (drop 3 dna))
             else loop (p |> (PEnd, [take 3 dna])) (lvl - 1) rna (drop 3 dna)
-      | dna `startsWith` (toDna "III") =
+      | d3 == dnaIII =
           loop p lvl (rna |> subseq 3 10 dna) (drop 10 dna)
       | otherwise = (p, rna, empty)
+      where d1 = index dna 0
+            d2 = take 2 dna
+            d3 = take 3 dna
 
 template :: Dna -> (Template, Rna, Dna)
 template dna =
@@ -142,54 +144,64 @@ template2 :: Dna -> (Seq (TItem, [Dna]), Rna, Dna)
 template2 dna = loop empty empty dna
   where
     loop t rna dna
-      | dna `startsWith` (toDna "C") = loop (t |> (TBase 'I', [take 1 dna])) rna (drop 1 dna)
-      | dna `startsWith` (toDna "F") = loop (t |> (TBase 'C', [take 1 dna])) rna (drop 1 dna)
-      | dna `startsWith` (toDna "P") = loop (t |> (TBase 'F', [take 1 dna])) rna (drop 1 dna)
-      | dna `startsWith` (toDna "IC") = loop (t |> (TBase 'P', [take 2 dna])) rna (drop 2 dna)
-      | (dna `startsWith` (toDna "IF") ||
-         dna `startsWith` (toDna "IP")) =
+      | d1 == 'C' = loop (t |> (TBase 'I', [take 1 dna])) rna (drop 1 dna)
+      | d1 == 'F' = loop (t |> (TBase 'C', [take 1 dna])) rna (drop 1 dna)
+      | d1 == 'P' = loop (t |> (TBase 'F', [take 1 dna])) rna (drop 1 dna)
+      | d2 == dnaIC = loop (t |> (TBase 'P', [take 2 dna])) rna (drop 2 dna)
+      | d2 == dnaIF || d2 == dnaIP =
           let (l, dna') = nat (drop 2 dna)
               (n, dna'') = nat dna'
           in loop (t |> (TRefer n l, [take 2 dna, consumed (drop 2 dna) dna', consumed dna' dna''])) rna dna''
-      | (dna `startsWith` (toDna "IIC") ||
-         dna `startsWith` (toDna "IIF")) = (t, rna, drop 3 dna)
-      | dna `startsWith` (toDna "IIP") =
+      | d3 == dnaIIC || d3 == dnaIIF = (t, rna, drop 3 dna)
+      | d3 == dnaIIP =
           let (n, dna') = nat (drop 3 dna)
           in loop (t |> (TEncode n, [take 3 dna, consumed (drop 3 dna) dna'])) rna dna'
-      | dna `startsWith` (toDna "III") =
+      | d3 == dnaIII =
           loop t (rna |> subseq 3 10 dna) (drop 10 dna)
       | otherwise = (t, rna, empty)
-
+      where d1 = index dna 0
+            d2 = take 2 dna
+            d3 = take 3 dna
 
 nat :: Dna -> (Int, Dna)
 nat dna
-  | dna `startsWith` (toDna "P") = (0, drop 1 dna)
-  | (dna `startsWith` (toDna "I") ||
-     dna `startsWith` (toDna "F")) =
+  | d1 == 'P' = (0, drop 1 dna)
+  | d1 == 'I' || d1 == 'F' =
       let (n, dna') = nat (drop 1 dna)
       in (2 * n, dna')
-  | dna `startsWith` (toDna "C") =
+  | d1 == 'C' =
       let (n, dna') = nat (drop 1 dna)
       in (2 * n + 1, dna')
+  where d1 = index dna 0
 
 consts :: Dna -> (Dna, Dna)
 consts dna
-  | dna `startsWith` (toDna "C") =
+  | d1 == 'C' =
       let (s, dna') = consts (drop 1 dna)
       in ('I' <| s, dna')
-  | dna `startsWith` (toDna "F") =
+  | d1 == 'F' =
       let (s, dna') = consts (drop 1 dna)
       in ('C' <| s, dna')
-  | dna `startsWith` (toDna "P") =
+  | d1 == 'P' =
       let (s, dna') = consts (drop 1 dna)
       in ('F' <| s, dna')
-  | dna `startsWith` (toDna "IC") =
+  | d2 == dnaIC =
       let (s, dna') = consts (drop 2 dna)
       in ('P' <| s, dna')
   | otherwise = (empty, dna)
+  where d1 = index dna 0
+        d2 = take 2 dna
 
 startsWith :: Dna -> Dna -> Bool
 startsWith seq prefix = take (length prefix) seq == prefix
 
 subseq :: Int -> Int -> Seq a -> Seq a
 subseq i e seq = take (e - i) $ drop i seq
+
+dnaIC = toDna "IC"
+dnaIP = toDna "IP"
+dnaIF = toDna "IF"
+dnaIIP = toDna "IIP"
+dnaIIC = toDna "IIC"
+dnaIIF = toDna "IIF"
+dnaIII = toDna "III"
