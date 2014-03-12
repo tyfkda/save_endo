@@ -1,9 +1,9 @@
 {-# LANGUAGE DeriveDataTypeable #-}
-import DnaToRna (execute1, toDna, pattern2, search, template2)
+import DnaToRna (execute1, toDna, pattern, search, template)
 import Prelude hiding (drop, mapM_)
 import Data.Foldable (mapM_, toList)
 import Data.List (intercalate)
-import Data.Sequence (drop, (><))
+import Data.Sequence (drop, empty, (><))
 import System.Environment (getArgs)
 import System.IO (IOMode(..), hClose, hPutStrLn, openFile, stdout, stderr)
 import System.Console.GetOpt (ArgDescr(..), ArgOrder(..), OptDescr(..), getOpt)
@@ -38,16 +38,14 @@ convert prefix = do
   cs <- getContents
   args <- getArgs
   let dna = toDna prefix >< toDna cs
-  let n = 10000000000
-  loop stdout 0 n dna
+  loop stdout dna
 
-loop fhRna i n dna | i >= n = putStrLn (show n ++ " loop over")
-                   | otherwise = do
+loop fhRna dna = do
   case execute1 dna of
-    Nothing -> hPutStrLn stderr ("Dna is fully converted to Rna at #" ++ show i)
+    Nothing -> hPutStrLn stderr "Dna is fully converted to Rna"
     Just (rna, dna') -> do
       writeRna fhRna rna
-      loop fhRna (i + 1) n dna'
+      loop fhRna dna'
 
 writeRna fhRna rna = do
   mapM_ (hPutStrLn fhRna . toList) rna
@@ -55,14 +53,12 @@ writeRna fhRna rna = do
 
 dumpPrefix prefix = do
   let dna = toDna prefix
-  let (pss, rna, dna') = pattern2 dna
-  let (tss, rna2, dna'') = template2 dna'
+  let (pss, rna, dna') = pattern empty 0 empty dna
+  let (tss, rna2, dna'') = template empty empty dna'
 
-  putStrLn ("Pattern: " ++ concatMap (show . fst) (toList pss))
-  mapM_ (\(pitem, dnas) -> putStrLn (show pitem ++ "\t" ++ (intercalate " " $ map toList $ toList dnas))) $ toList pss
-  putStrLn ("\nTemplate: " ++ concatMap (show . fst) (toList tss))
-  mapM_ (\(titem, dnas) -> putStrLn (show titem ++ "\t" ++ (intercalate " " $ map toList $ toList dnas))) $ toList tss
-  putStrLn ("\nLeft: [" ++ toList dna'' ++ "]")
+  putStrLn ("Pattern: " ++ concatMap show (toList pss))
+  putStrLn ("Template: " ++ concatMap show (toList tss))
+  putStrLn ("Left: [" ++ toList dna'' ++ "]")
 
 searchPrefix prefixs = do
   cs <- getContents

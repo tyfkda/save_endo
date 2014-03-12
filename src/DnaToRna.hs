@@ -35,8 +35,8 @@ execute1 dna | null dna = Nothing
              | otherwise = Just $ step dna
 
 step :: Dna -> (Rna, Dna)
-step dna = let (p, rna1, dna') = pattern dna
-               (t, rna2, dna'') = template dna'
+step dna = let (p, rna1, dna') = pattern empty 0 empty dna
+               (t, rna2, dna'') = template empty empty dna'
            in (rna1 >< rna2, matchreplace p t dna'')
 
 matchreplace :: Pattern -> Template -> Dna -> Dna
@@ -56,21 +56,20 @@ matchreplace pat t dna = loop 0 empty empty pat dna
       (PBegin :< pat') -> loop i e (i <| c) pat' dna
       (PEnd :< pat') -> loop i (e |> subseq (index c 0) i dna) (drop 1 c) pat' dna
       EmptyL ->
-        replace t e (drop i dna)
+        replace empty t e (drop i dna)
 
-replace :: Template -> Seq Dna -> Dna -> Dna
-replace tpl e dna = loop empty tpl
-  where
-    loop r tpl = case viewl tpl of
-      (TBase b :< tpl') -> loop (r |> b) tpl'
+--replace :: Template -> Seq Dna -> Dna -> Dna
+replace r tpl e dna =
+    case viewl tpl of
+      (TBase b :< tpl') -> replace (r |> b) tpl' e dna
       (TRefer n l :< tpl') ->
         let ref = if n < length e then index e n
                                   else empty
-        in loop (r >< protect l ref) tpl'
+        in replace (r >< protect l ref) tpl' e dna
       (TEncode n :< tpl') ->
         let len = if n < length e then length $ index e n
                                   else 0
-        in loop (r >< asnat len) tpl'
+        in replace (r >< asnat len) tpl' e dna
       EmptyL -> r >< dna
 
 protect :: Int -> Dna -> Dna
@@ -98,70 +97,51 @@ search sub dna =
        then Nothing
        else Just $ length skip
 
-pattern :: Dna -> (Pattern, Rna, Dna)
-pattern dna =
-  let (ss, rna, dna') = pattern2 dna
-  in (pickpatterns ss, rna, dna')
-  where pickpatterns ss = fromList $ map fst $ toList ss
+pattern :: Seq PItem -> Int -> Rna -> Dna -> (Pattern, Rna, Dna)
+pattern p lvl rna dna
+  | d1 == 'C' = pattern (p |> PBase 'I') lvl rna (drop 1 dna)
+  | d1 == 'F' = pattern (p |> PBase 'C') lvl rna (drop 1 dna)
+  | d1 == 'P' = pattern (p |> PBase 'F') lvl rna (drop 1 dna)
+  | d2 == dnaIC = pattern (p |> PBase 'P') lvl rna (drop 2 dna)
+  | d2 == dnaIP =
+      let (n, dna') = nat (drop 2 dna)
+      in pattern (p |> PSkip n) lvl rna dna'
+  | d2 == dnaIF =
+      let (s, dna') = consts (drop 3 dna)
+      in pattern (p |> PSearch s) lvl rna dna'
+  | d3 == dnaIIP =
+      pattern (p |> PBegin) (lvl + 1) rna (drop 3 dna)
+  | d3 == dnaIIC || d3 == dnaIIF =
+      if lvl == 0
+        then (p, rna, (drop 3 dna))
+        else pattern (p |> PEnd) (lvl - 1) rna (drop 3 dna)
+  | d3 == dnaIII =
+      pattern p lvl (rna |> subseq 3 10 dna) (drop 10 dna)
+  | otherwise = (p, rna, empty)
+  where d1 = index dna 0
+        d2 = take 2 dna
+        d3 = take 3 dna
 
-consumed :: Dna -> Dna -> Dna
-consumed src dst = take (length src - length dst) src
-
-pattern2 :: Dna -> (Seq (PItem, [Dna]), Rna, Dna)
-pattern2 dna = loop empty 0 empty dna
-  where
-    loop p lvl rna dna
-      | d1 == 'C' = loop (p |> (PBase 'I', [take 1 dna])) lvl rna (drop 1 dna)
-      | d1 == 'F' = loop (p |> (PBase 'C', [take 1 dna])) lvl rna (drop 1 dna)
-      | d1 == 'P' = loop (p |> (PBase 'F', [take 1 dna])) lvl rna (drop 1 dna)
-      | d2 == dnaIC = loop (p |> (PBase 'P', [take 2 dna])) lvl rna (drop 2 dna)
-      | d2 == dnaIP =
-          let (n, dna') = nat (drop 2 dna)
-          in loop (p |> (PSkip n, [take 2 dna, consumed (drop 2 dna) dna'])) lvl rna dna'
-      | d2 == dnaIF =
-          let (s, dna') = consts (drop 3 dna)
-          in loop (p |> (PSearch s, [take 3 dna, consumed (drop 3 dna) dna'])) lvl rna dna'
-      | d3 == dnaIIP =
-          loop (p |> (PBegin, [take 3 dna])) (lvl + 1) rna (drop 3 dna)
-      | d3 == dnaIIC || d3 == dnaIIF =
-          if lvl == 0
-            then (p, rna, (drop 3 dna))
-            else loop (p |> (PEnd, [take 3 dna])) (lvl - 1) rna (drop 3 dna)
-      | d3 == dnaIII =
-          loop p lvl (rna |> subseq 3 10 dna) (drop 10 dna)
-      | otherwise = (p, rna, empty)
-      where d1 = index dna 0
-            d2 = take 2 dna
-            d3 = take 3 dna
-
-template :: Dna -> (Template, Rna, Dna)
-template dna =
-  let (ss, rna, dna') = template2 dna
-  in (picktemplates ss, rna, dna')
-  where picktemplates ss = fromList $ map fst $ toList ss
-
-template2 :: Dna -> (Seq (TItem, [Dna]), Rna, Dna)
-template2 dna = loop empty empty dna
-  where
-    loop t rna dna
-      | d1 == 'C' = loop (t |> (TBase 'I', [take 1 dna])) rna (drop 1 dna)
-      | d1 == 'F' = loop (t |> (TBase 'C', [take 1 dna])) rna (drop 1 dna)
-      | d1 == 'P' = loop (t |> (TBase 'F', [take 1 dna])) rna (drop 1 dna)
-      | d2 == dnaIC = loop (t |> (TBase 'P', [take 2 dna])) rna (drop 2 dna)
-      | d2 == dnaIF || d2 == dnaIP =
-          let (l, dna') = nat (drop 2 dna)
-              (n, dna'') = nat dna'
-          in loop (t |> (TRefer n l, [take 2 dna, consumed (drop 2 dna) dna', consumed dna' dna''])) rna dna''
-      | d3 == dnaIIC || d3 == dnaIIF = (t, rna, drop 3 dna)
-      | d3 == dnaIIP =
-          let (n, dna') = nat (drop 3 dna)
-          in loop (t |> (TEncode n, [take 3 dna, consumed (drop 3 dna) dna'])) rna dna'
-      | d3 == dnaIII =
-          loop t (rna |> subseq 3 10 dna) (drop 10 dna)
-      | otherwise = (t, rna, empty)
-      where d1 = index dna 0
-            d2 = take 2 dna
-            d3 = take 3 dna
+template :: Seq TItem -> Rna -> Dna -> (Template, Rna, Dna)
+template t rna dna
+  | d1 == 'C' = template (t |> TBase 'I') rna (drop 1 dna)
+  | d1 == 'F' = template (t |> TBase 'C') rna (drop 1 dna)
+  | d1 == 'P' = template (t |> TBase 'F') rna (drop 1 dna)
+  | d2 == dnaIC = template (t |> TBase 'P') rna (drop 2 dna)
+  | d2 == dnaIF || d2 == dnaIP =
+      let (l, dna') = nat (drop 2 dna)
+          (n, dna'') = nat dna'
+      in template (t |> TRefer n l) rna dna''
+  | d3 == dnaIIC || d3 == dnaIIF = (t, rna, drop 3 dna)
+  | d3 == dnaIIP =
+      let (n, dna') = nat (drop 3 dna)
+      in template (t |> TEncode n) rna dna'
+  | d3 == dnaIII =
+      template t (rna |> subseq 3 10 dna) (drop 10 dna)
+  | otherwise = (t, rna, empty)
+  where d1 = index dna 0
+        d2 = take 2 dna
+        d3 = take 3 dna
 
 nat :: Dna -> (Int, Dna)
 nat dna
