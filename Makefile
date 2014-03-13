@@ -4,6 +4,7 @@ all:
 
 clean:
 	make -C src clean
+	make -C tools clean
 
 diff:
-	bin/calc_risk results/target.png image.png
+	bin/calc_risk resources/target.png image.png
