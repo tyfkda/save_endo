@@ -11,11 +11,21 @@ whiteSpaces = do
   many (char ' ' <|> char '\t')
   return ()
 
+quote :: String -> String
+quote "" = ""
+quote ('I' : dnas) = 'C' : quote dnas
+quote ('C' : dnas) = 'F' : quote dnas
+quote ('F' : dnas) = 'P' : quote dnas
+quote ('P' : dnas) = 'I' : 'C' : quote dnas
+
+asnat0 :: Integral a => a -> String
+asnat0 0 = ""
+asnat0 n | n < 0  = undefined
+         | even n = 'I' : asnat0 (n `div` 2)
+         | odd  n = 'C' : asnat0 (n `div` 2)
+
 asnat :: Integral a => a -> String
-asnat 0 = "P"
-asnat n | n < 0  = undefined
-        | even n = 'I' : asnat (n `div` 2)
-        | odd  n = 'C' : asnat (n `div` 2)
+asnat n = asnat0 n ++ "P"
 
 base :: Parser String
 base = do
@@ -65,7 +75,7 @@ paren = do
 
 patternElem :: Parser String
 patternElem = do
-  s <- paren <|> skip <|> search <|> base
+  s <- paren <|> skip <|> search <|> base <|> num
   whiteSpaces
   return s
 
@@ -92,7 +102,7 @@ encode = do
 
 templateElem :: Parser String
 templateElem = do
-  s <- base <|> refer <|> encode
+  s <- base <|> refer <|> encode <|> num
   whiteSpaces
   return s
 
@@ -100,6 +110,13 @@ template :: Parser String
 template = do
   ss <- many templateElem
   return (concat ss ++ "IIC")
+
+num :: Parser String
+num = do
+  string "\\num("
+  n <- number
+  string ")"
+  return $ quote $ asnat0 n
 
 line :: Parser String
 line =
