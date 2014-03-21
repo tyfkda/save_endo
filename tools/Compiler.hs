@@ -75,7 +75,8 @@ paren = do
 
 patternElem :: Parser String
 patternElem = do
-  s <- paren <|> skip <|> search <|> base <|> num
+  s <- paren <|> skip <|> search <|> base
+       <|> try numFunc <|> try (quoteFunc patternElem)
   whiteSpaces
   return s
 
@@ -102,7 +103,8 @@ encode = do
 
 templateElem :: Parser String
 templateElem = do
-  s <- base <|> refer <|> encode <|> num
+  s <- base <|> refer <|> encode
+       <|> try numFunc <|> try (quoteFunc templateElem)
   whiteSpaces
   return s
 
@@ -111,12 +113,19 @@ template = do
   ss <- many templateElem
   return (concat ss ++ "IIC")
 
-num :: Parser String
-num = do
+numFunc :: Parser String
+numFunc = do
   string "\\num("
   n <- number
   string ")"
-  return $ quote $ asnat0 n
+  return $ asnat0 n
+
+quoteFunc :: Parser String -> Parser String
+quoteFunc p = do
+  string "\\quote("
+  s <- p
+  string ")"
+  return $ quote s
 
 line :: Parser String
 line =
