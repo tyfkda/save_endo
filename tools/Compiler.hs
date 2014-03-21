@@ -1,3 +1,4 @@
+import Data.List (genericLength)
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Language
 import qualified Text.ParserCombinators.Parsec.Token as P
@@ -59,7 +60,7 @@ baseP = do
 skip :: Parser String
 skip = do
   char '!'
-  n <- number
+  n <- number <|> lenFunc patternElem
   return ("IP" ++ asnat n)
 
 search :: Parser String
@@ -126,6 +127,13 @@ quoteFunc p = do
   s <- p
   string ")"
   return $ quote s
+
+lenFunc :: Integral a => Parser String -> Parser a
+lenFunc p = do
+  string "\\len("
+  s <- p
+  string ")"
+  return $ genericLength s
 
 line :: Parser String
 line =
