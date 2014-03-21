@@ -20,10 +20,12 @@ quote ('F' : dnas) = 'P' : quote dnas
 quote ('P' : dnas) = 'I' : 'C' : quote dnas
 
 asnat0 :: Integral a => a -> String
-asnat0 0 = ""
-asnat0 n | n < 0  = undefined
-         | even n = 'I' : asnat0 (n `div` 2)
-         | odd  n = 'C' : asnat0 (n `div` 2)
+asnat0 0 = "I"
+asnat0 n | n < 0     = undefined
+         | otherwise = loop n
+  where loop 0 = ""
+        loop n | even n = 'I' : loop (n `div` 2)
+               | odd  n = 'C' : loop (n `div` 2)
 
 asnat :: Integral a => a -> String
 asnat n = asnat0 n ++ "P"
@@ -89,9 +91,9 @@ pattern = do
 refer :: Parser String
 refer = do
   char '{'
-  l <- number
-  char '_'
   n <- number
+  char '_'
+  l <- number
   char '}'
   return ("IF" ++ asnat l ++ asnat n)
 
