@@ -1,0 +1,1 @@
+time bin/dna_to_rna $@ < resources/endo.dna | bin/rna_to_image

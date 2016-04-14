@@ -79,7 +79,7 @@ paren = do
 patternElem :: Parser String
 patternElem = do
   s <- paren <|> skip <|> search <|> base
-       <|> try numFunc <|> try (quoteFunc patternElem)
+       <|> try numFunc <|> try (quoteFunc patternElem) <|> block
   whiteSpaces
   return s
 
@@ -107,7 +107,7 @@ encode = do
 templateElem :: Parser String
 templateElem = do
   s <- base <|> refer <|> encode
-       <|> try numFunc <|> try (quoteFunc templateElem)
+       <|> try numFunc <|> try (quoteFunc templateElem) <|> block
   whiteSpaces
   return s
 
@@ -137,16 +137,27 @@ lenFunc p = do
   string ")"
   return $ genericLength s
 
+block :: Parser String
+block = do
+  char '['
+  s <- patternTemplate
+  char ']'
+  return $ quote s
+
+patternTemplate = do
+  pat <- pattern
+  whiteSpaces
+  string "|->"
+  whiteSpaces
+  tmp <- template
+  return (pat ++ tmp)
+
 line :: Parser String
 line =
   try (do
-    pat <- pattern
-    whiteSpaces
-    string "|->"
-    whiteSpaces
-    tmp <- template
+    s <- patternTemplate
     eof
-    return (pat ++ tmp)
+    return s
   ) <|> (do
     whiteSpaces
     eof

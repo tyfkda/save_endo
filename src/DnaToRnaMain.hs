@@ -51,14 +51,16 @@ writeRna fhRna rna = do
   mapM_ (hPutStrLn fhRna . toList) rna
 
 
+dumpPrefix "" = putStr ""
 dumpPrefix prefix = do
   let dna = toDna prefix
   let (pss, rna, dna') = pattern empty 0 empty dna
   let (tss, rna2, dna'') = template empty empty dna'
 
-  putStrLn ("Pattern: " ++ concatMap show (toList pss))
-  putStrLn ("Template: " ++ concatMap show (toList tss))
-  putStrLn ("Left: [" ++ toList dna'' ++ "]")
+  putStrLn (concatMap show (toList pss) ++ " |-> " ++ concatMap show (toList tss))
+  if dna'' /= dna
+    then dumpPrefix $ toList dna''
+    else putStrLn ("Left: [" ++ toList dna'' ++ "]")
 
 searchPrefix prefixs = do
   cs <- getContents

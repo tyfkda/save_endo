@@ -1,0 +1,5 @@
+# Turn to noon
+(?IFPFI)P |-> {0_0}F
+
+# Rotate windmill 5 degrees
+(?IFPICFPPCFFPP!823763)!\len(\num(5)) |-> {0_0}\quote(\num(5))
